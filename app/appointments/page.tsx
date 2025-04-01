@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuthContext } from "@/context/authContext";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -34,7 +35,8 @@ interface ApiResponse {
 }
 
 const AdminAppointmentsPage: React.FC = () => {
-  const adminToken = process.env.NEXT_PUBLIC_TOKEN;
+    const {auth_token} = useAuthContext()
+//   const adminToken = process.env.NEXT_PUBLIC_TOKEN;
   const [appointments, setAppointments] = useState<{
     past: Appointment[];
     upcoming: Appointment[];
@@ -52,7 +54,7 @@ const AdminAppointmentsPage: React.FC = () => {
           `${process.env.NEXT_PUBLIC_BASE_URL}/v1/api/appointments`,
           {
             headers: {
-              Authorization: `Bearer ${adminToken}`,
+              Authorization: `Bearer ${auth_token}`,
             },
           }
         );
@@ -72,13 +74,13 @@ const AdminAppointmentsPage: React.FC = () => {
     };
 
     fetchAppointments();
-  }, [adminToken]);
+  }, [auth_token]);
 
   const updateAppointmentStatus = async (
     appointmentId: number,
     status: "cancelled" | "accepted"
   ) => {
-    if (!adminToken) return;
+    if (!auth_token) return;
 
     try {
       const response = await fetch(
@@ -86,7 +88,7 @@ const AdminAppointmentsPage: React.FC = () => {
         {
           method: "PATCH",
           headers: {
-            Authorization: `Bearer ${adminToken}`,
+            Authorization: `Bearer ${auth_token}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ status }),

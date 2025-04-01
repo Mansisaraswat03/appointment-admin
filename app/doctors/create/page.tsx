@@ -3,6 +3,7 @@ import {useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { useAuthContext } from "@/context/authContext";
 
 export default function CreateDoctor() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function CreateDoctor() {
     profile: null as File | null,
   });
   const [uploading, setUploading] = useState(false);
-  const token = process.env.NEXT_PUBLIC_TOKEN;
+  const { auth_token } = useAuthContext();
 
   const uploadToCloudinary = async (file: File) => {
     const formData = new FormData();
@@ -69,7 +70,7 @@ export default function CreateDoctor() {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${auth_token}`,
           },
           withCredentials: true,
         }

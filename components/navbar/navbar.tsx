@@ -6,9 +6,11 @@ import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import {FiUser } from "react-icons/fi";
 import styles from "./navbar.module.css";
+import { useAuthContext } from "@/context/authContext";
 
 export default function Navbar() {
-  const { token, logout, checkToken } = useAuth();
+  const {logout, checkToken } = useAuth();
+  const {auth_token} = useAuthContext()
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
@@ -40,7 +42,7 @@ export default function Navbar() {
       <div className="text-2xl text-gray-400">Admin Dashboard</div>
 
       <div className={styles.actions}>
-        {token ? (
+        {auth_token ? (
           <div className={styles.profileContainer} ref={profileRef}>
             <button className={styles.profileBtn} onClick={toggleProfile} aria-label="Profile">
               <FiUser size={24} />

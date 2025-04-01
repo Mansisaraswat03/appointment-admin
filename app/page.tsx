@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/context/authContext";
 
 interface DashboardStats {
   usersCount: number;
@@ -17,12 +18,13 @@ export default function Home() {
     appoitmentsCount: 0,
   });
   const router = useRouter();
-  const { token, checkToken } = useAuth();
+  const { checkToken } = useAuth();
+  const { auth_token } = useAuthContext();
 
   useEffect(() => {
     const fetchStats = async () => {
-      checkToken();
-      if (!token) {
+      await checkToken();
+      if (!auth_token) {
         router.push("/login");
         return;
       }
@@ -30,14 +32,14 @@ export default function Home() {
         const [usersRes, doctorsRes, appoitmentsRes] = await Promise.all([
           axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/v1/api/users`, {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${auth_token}`,
             },
             withCredentials: true,
           }),
           axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/v1/api/doctors`),
           axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/v1/api/appointments`, {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${auth_token}`,
             },
             withCredentials: true,
           }),
@@ -45,14 +47,14 @@ export default function Home() {
         setStats({
           usersCount: usersRes?.data?.data?.users?.length,
           doctorsCount: doctorsRes?.data?.data?.doctors?.length,
-          appoitmentsCount: appoitmentsRes?.data?.data?.length,
+          appoitmentsCount: appoitmentsRes?.data?.data?.past?.length+ appoitmentsRes?.data?.data?.upcoming?.length,
         });
       } catch (error) {
         console.error("Error fetching stats:", error);
       }
     };
     fetchStats();
-  }, [token]);
+  }, [auth_token,router]);
 
   return (
     <main className="p-8 h-screen">
